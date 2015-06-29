@@ -1,3 +1,37 @@
+function Animator(canvas) {
+    canvas.setAttribute('width', '500');
+    canvas.setAttribute('height', '500');
+    this.width = canvas.width;
+    this.height = canvas.height;
+    this.ctx = canvas.getContext('2d');
+}
+
+Animator.prototype.createPellets = function (x, y) {
+    return makePellets(x, y, 5);
+};
+
+Animator.prototype.explode = function (pellets) {
+    this.draw(pellets);
+    // increase the angle of rotation
+    pellets.forEach(function (pellet) {
+        pellet.angle += 3 * Math.PI / 180;
+        pellet.updatePosition();
+    });
+    requestAnimationFrame(function () {
+        this.explode(pellets)
+    }.bind(this));
+};
+
+Animator.prototype.draw = function (pellets) {
+    //this.ctx.clearRect(0, 0, this.width, this.height);
+    var that = this;
+    pellets.forEach(function (pellet) {
+        pellet.draw(that.ctx);
+    });
+    this.ctx.fillStyle = "#000000";
+    this.ctx.fillRect(200, 200, 25, 25);
+};
+
 function makePellets(x, y, count) {
     var pellets = [];
     for (var i = 0; i < count; i++)

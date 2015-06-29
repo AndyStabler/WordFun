@@ -1,3 +1,84 @@
+/**
+ * Created by andy on 27/06/15.
+ */
+
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+
+// requestAnimationFrame polyfill by Erik Möller. fixes from Paul Irish and Tino Zijdel
+
+// MIT license
+
+(function () {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame']
+            || window[vendors[x] + 'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function (callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function () {
+                    callback(currTime + timeToCall);
+                },
+                timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function (id) {
+            clearTimeout(id);
+        };
+}());
+
+document.getElementById('word-fun-input').addEventListener('keypress', temp);
+document.getElementById('word-fun-input').focus();
+
+function temp() {
+    var anim = new Animator(document.getElementById('word-fun-canvas'));
+    var pellets = anim.createPellets(200, 200);
+    var request = requestAnimationFrame(function () {
+        anim.explode(pellets)
+    });
+
+    setTimeout(function () {
+        cancelAnimationFrame(request)
+    }, 5000);
+}
+
+/*
+ http://stackoverflow.com/a/1846704/3380056
+ */
+function keyPressed(e) {
+    "use strict";
+    var keynum;
+    if (window.event) { // IE
+        keynum = e.keyCode;
+    } else if (e.which) { // Netscape/Firefox/Opera
+        keynum = e.which;
+    }
+    return keynum;
+}
+
+function update(evt) {
+    "use strict";
+    var key = keyPressed(evt);
+    alert(key + " matches /[a-zA-Z0-9]/ : " + /[a-zA-Z0-9]/.test(String.fromCharCode(key)));
+    if (!/[a-zA-Z0-9]/.test(String.fromCharCode(key))) return;
+
+    var canvas = document.getElementById('word-fun-canvas');
+
+    // TODO: remove gaps in value range
+    // integer range = 48-57 (min/max inclusive)
+    // char range = 65-90, 97-122
+
+}
+
 function Animator(canvas) {
     canvas.setAttribute('width', '500');
     canvas.setAttribute('height', '500');

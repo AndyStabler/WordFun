@@ -31,21 +31,34 @@
 
 function Animator(canvas) {
     "use strict";
-    canvas.setAttribute('width', '500');
-    canvas.setAttribute('height', '500');
-    this.width = canvas.width;
-    this.height = canvas.height;
     this.ctx = canvas.getContext('2d');
+    this.initDimension();
     this.exploders = [];
     this.clearCanvas();
 }
 
+/**
+ * Sets the dimension of the canvas to the window's dimension
+ */
+Animator.prototype.initDimension = function () {
+    "use strict";
+    // set the canvas size to match the window's
+    this.ctx.canvas.width = window.innerWidth;
+    this.ctx.canvas.height = window.innerHeight;
+    this.width = this.ctx.canvas.width;
+    this.height = this.ctx.canvas.height;
+};
+
+/**
+ * Add an exploder to the queue of exploders to animate
+ */
 Animator.prototype.pushExploder = function (exploder) {
     "use strict";
     var that = this;
-    // add the exploder to the beginning of the
+    // add the exploder to the end of the queue
     this.exploders.push(exploder);
 
+    // if we aren't running, start up
     if (!running) {
         running = true;
         requestAnimationFrame(anim.explode.bind(anim));
@@ -53,7 +66,8 @@ Animator.prototype.pushExploder = function (exploder) {
 
     // check the explosion every so often - once it's finished remove it from the animation
     var t = setInterval(function () {
-        if (exploder.finished()) {
+        if (exploder.isFinished()) {
+            // remove it from queue
             that.shiftExploder();
             // stop checking to see if it's dead once we know it is
             clearInterval(t);
@@ -62,11 +76,14 @@ Animator.prototype.pushExploder = function (exploder) {
 
 };
 
+/**
+ * Remove an exploder from the animation queue - done once an exploder has finished
+ */
 Animator.prototype.shiftExploder = function () {
     "use strict";
-    // remove from beginning
+    // remove most recent exploder from queue
     this.exploders.shift();
-    // stop the animation if there are no explosions to animte
+    // stop the animation if there are no explosions to animate
     if (this.exploders.length == 0) {
         cancelAnimationFrame(animRequest);
         running = false;
@@ -79,8 +96,14 @@ Animator.prototype.clearCanvas = function () {
     this.ctx.clearRect(0, 0, this.width, this.height);
 };
 
+/**
+ * Main draw function for the Animator object
+ *
+ * calls explode function on each exploder in the queue
+ */
 Animator.prototype.explode = function () {
     "use strict";
+    this.initDimension();
     this.clearCanvas();
     this.exploders.forEach(function (exploder) {
         exploder.explode();
@@ -89,24 +112,25 @@ Animator.prototype.explode = function () {
     animRequest = requestAnimationFrame(this.explode.bind(this));
 };
 
-document.getElementById('word-fun-input').addEventListener('keypress', newCharacter);
-document.getElementById('pause').addEventListener('click',
-    function () {
-        if (running) {
-            cancelAnimationFrame(animRequest);
-            running = false;
-        } else {
-            requestAnimationFrame(anim.explode.bind(anim));
-            running = true;
-        }
-    });
-
+/**
+ * An exploder is a firework - holds many pellets that fly off when a key is pressed
+ * @param ctx the canvas context to draw the explosion on to
+ * @param x the x coordinate of the explosion
+ * @param y the y coordinate of the explosion
+ */
 function Exploder(ctx, x, y) {
     "use strict";
     this.ctx = ctx;
+    // generate a number of pellets to be used in the explosion
     this.makePellets(x, y, 10);
 }
 
+/**
+ * Generates a number of pellets for use in the explosion
+ * @param x the x coordinate of the pellet
+ * @param y the y coordinate of the pellet
+ * @param count the number of pellets to generate
+ */
 Exploder.prototype.makePellets = function (x, y, count) {
     "use strict";
     var pellets = [];
@@ -115,6 +139,9 @@ Exploder.prototype.makePellets = function (x, y, count) {
     this.pellets = pellets;
 };
 
+/**
+ * Draws the pellets and updates their position
+ */
 Exploder.prototype.explode = function () {
     "use strict";
     this.draw();
@@ -125,6 +152,9 @@ Exploder.prototype.explode = function () {
     });
 };
 
+/**
+ * Draws all pellets in the explosion onto the canvas
+ */
 Exploder.prototype.draw = function () {
     "use strict";
     var that = this;
@@ -133,28 +163,45 @@ Exploder.prototype.draw = function () {
     });
 };
 
-Exploder.prototype.finished = function () {
+/**
+ * if any pellet in the explosion is dead, then the explosion is finisheds
+ * TODO: could class Exploder as finished when all pellets are dead?
+ * @return {boolean}
+ */
+Exploder.prototype.isFinished = function () {
     "use strict";
     return this.pellets.some(function (pellet) {
         return pellet.dead
     });
 };
 
+/**
+ * A pellet used as part of an explosion
+ * @param x x coordinate of the pellet
+ * @param y y coordinate of the pellet
+ */
 function Pellet(x, y) {
-    this.size = 10;
+    "use strict";
+    this.size = 30;
     this.x = x;
     this.y = y;
     this.opacity = 1;
     this.dead = false;
+    // arcCx/Cy are the coordinates of the center of the arc circle
     this.generateArcCx();
     this.generateArcCy();
     // radius is the hyp
     this.arcRadius = Math.sqrt(Math.pow(Math.abs(this.arcCx - this.x), 2) + Math.pow(Math.abs(this.arcCy - this.y), 2));
     this.colour = randomColor();
     this.angle = 3 * Math.PI / 180;
-    console.log("arcCx = " + this.arcCx + ". this.x = " + this.x + ". is left arc? " + (this.arcCx < this.x) + ". Colour is " + this.colour);
 }
 
+/**
+ * Generates the x coordinate of the arc circle's center
+ *
+ * the x coordinate must be far enough away from the pellet's x coordinate to make the explosion look fairly real
+ * the further away the point, the longer the arc will be
+ */
 Pellet.prototype.generateArcCx = function () {
     // decide between a left and a right arc at random
     this.isLeftArc = Math.random() < 0.5;
@@ -170,25 +217,38 @@ Pellet.prototype.generateArcCx = function () {
     this.arcCx = ran(min, max);
 };
 
+/**
+ * Generates the y coordinate of the arc circle's center
+ *
+ * the y coordinate must be <= to the pellet's y coordinate to make the explosion look fairly real
+ * if the arcY coordinate was above the pellet's y coordinate, the arc would look weird (it would go in a positive
+ * and negative x direction)
+ */
 Pellet.prototype.generateArcCy = function () {
     var max = this.y;
     var min = this.y - this.size;
     this.arcCy = ran(min, max);
 };
 
+/**
+ * Updates the pellet's position along its trajectory arc \
+ */
 Pellet.prototype.updatePosition = function () {
-    // we want all pellets in an explision to start at the same x,y pos
+    // we want all pellets in an explosion to start at the same x,y pos
     // so either add the radius (if we're performing a left arc) or subtract it (if we're performing a right arc)
     var xRad = this.isLeftArc ? this.arcRadius : -this.arcRadius;
 
     this.x = this.arcCx + xRad * Math.cos(this.angle);
     this.y = this.arcCy - this.arcRadius * Math.sin(this.angle) * 2;
-
+    // decrease the opacity over time - once its opacity is low enough we class it as dead
     this.opacity -= this.opacity > .02 ? .02 : 0;
     if (this.opacity <= 0.2)
         this.dead = true;
 };
 
+/**
+ * Draw the pellet on the canvas' context
+ */
 Pellet.prototype.draw = function (ctx) {
     ctx.save();
     ctx.globalAlpha = this.opacity;
@@ -209,11 +269,24 @@ function randomColor() {
     return color;
 }
 
+document.getElementById('word-fun-input').addEventListener('keypress', newCharacter);
+document.getElementById('pause').addEventListener('click',
+    function () {
+        if (running) {
+            cancelAnimationFrame(animRequest);
+            running = false;
+        } else {
+            requestAnimationFrame(anim.explode.bind(anim));
+            running = true;
+        }
+    });
 
 document.getElementById('word-fun-input').focus();
+
 var anim = new Animator(document.getElementById('word-fun-canvas'));
 var running = false;
 var animRequest;
+
 function newCharacter() {
     "use strict";
 
@@ -228,19 +301,6 @@ function newCharacter() {
     anim.pushExploder(new Exploder(anim.ctx, x, y));
 }
 
-/*
- http://stackoverflow.com/a/1846704/3380056
- */
-function keyPressed(e) {
-    "use strict";
-    var keynum;
-    if (window.event) { // IE
-        keynum = e.keyCode;
-    } else if (e.which) { // Netscape/Firefox/Opera
-        keynum = e.which;
-    }
-    return keynum;
-}
 
 function ran(min, max) {
     "use strict";

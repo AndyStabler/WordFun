@@ -102,8 +102,8 @@ wordFun.animator.prototype.fire = function () {
         mH = this.ctx.canvas.height;
 
     // don't get too close to the edge unless we have no choice
-    var x = ran(mW > 200 ? 50 : 0, mW > 200 ? mW - 50 : mW);
-    var y = ran(mH > 200 ? 50 : 0, mH > 200 ? mH - 50 : mH);
+    var x = wordFun.ran(mW > 200 ? 50 : 0, mW > 200 ? mW - 50 : mW);
+    var y = wordFun.ran(mH > 200 ? 50 : 0, mH > 200 ? mH - 50 : mH);
 
     this.pushExploder(new wordFun.exploder(this.ctx, x, y));
 };
@@ -187,7 +187,7 @@ wordFun.exploder.prototype.isFinished = function () {
  * @param x x coordinate of the pellet
  * @param y y coordinate of the pellet
  */
-wordFun.pellet = function(x, y) {
+wordFun.pellet = function (x, y) {
     "use strict";
     this.size = 30;
     this.x = x;
@@ -199,7 +199,7 @@ wordFun.pellet = function(x, y) {
     this.generateArcCy();
     // radius is the hyp
     this.arcRadius = Math.sqrt(Math.pow(Math.abs(this.arcCx - this.x), 2) + Math.pow(Math.abs(this.arcCy - this.y), 2));
-    this.colour = randomColor();
+    this.colour = wordFun.randomColor();
     this.angle = 3 * Math.PI / 180;
 };
 
@@ -221,7 +221,7 @@ wordFun.pellet.prototype.generateArcCx = function () {
         max = this.x + 5 * this.size;
         min = this.x + 2 * this.size;
     }
-    this.arcCx = ran(min, max);
+    this.arcCx = wordFun.ran(min, max);
 };
 
 /**
@@ -234,7 +234,7 @@ wordFun.pellet.prototype.generateArcCx = function () {
 wordFun.pellet.prototype.generateArcCy = function () {
     var max = this.y;
     var min = this.y - this.size;
-    this.arcCy = ran(min, max);
+    this.arcCy = wordFun.ran(min, max);
 };
 
 /**
@@ -268,18 +268,20 @@ wordFun.pellet.prototype.draw = function (ctx) {
     ctx.restore();
 };
 
-function randomColor() {
+wordFun.randomColor = function () {
     var letters = '0123456789ABCDEF'.split('');
     var color = '#';
     for (var i = 0; i < 6; i++)
         color += letters[Math.floor(Math.random() * 16)];
     return color;
-}
+};
 
-function ran(min, max) {
+wordFun.ran = function (min, max) {
     "use strict";
     return Math.floor(Math.random() * (max - min)) + min;
-}
+};
+
+// This is some guff needed so the requestAnimationFrame/cancelAnimationFrame function calls work across most all browsers
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating

@@ -131,17 +131,21 @@ Exploder.prototype.draw = function () {
     this.pellets.forEach(function (pellet) {
         pellet.draw(that.ctx);
     });
+};
 
-    // just the center dot for debugging
-    this.ctx.fillStyle = "#cccccc";
-    this.ctx.fillRect(200, 200, 5, 5);
+Exploder.prototype.finished = function () {
+    "use strict";
+    return this.pellets.some(function (pellet) {
+        return pellet.dead
+    });
 };
 
 function Pellet(x, y) {
-    this.size = 25;
+    this.size = 10;
     this.x = x;
     this.y = y;
     this.opacity = 1;
+    this.dead = false;
     this.generateArcCx();
     this.generateArcCy();
     // radius is the hyp
@@ -157,7 +161,7 @@ Pellet.prototype.generateArcCx = function () {
     if (this.isLeftArc) {
         // a left arc has been chosen
         var max = this.x - this.size;
-        var min = this.x - 4 * this.size;//4 * this.size;
+        var min = this.x - 4 * this.size;
     } else {
         // a right arc has been chosen
         max = this.x + 5 * this.size;
@@ -173,14 +177,16 @@ Pellet.prototype.generateArcCy = function () {
 };
 
 Pellet.prototype.updatePosition = function () {
-    // check if we're firing to the left
-    // update coordinates
-
+    // we want all pellets in an explision to start at the same x,y pos
+    // so either add the radius (if we're performing a left arc) or subtract it (if we're performing a right arc)
     var xRad = this.isLeftArc ? this.arcRadius : -this.arcRadius;
 
-    this.x = this.arcCx + xRad * Math.cos(this.angle);//(this.isLeftArc ? Math.sin(this.angle) : Math.cos(this.angle));
-    this.y = this.arcCy - this.arcRadius * Math.sin(this.angle);//(this.isLeftArc ? Math.cos(this.angle) : Math.sin(this.angle));
-    //this.opacity += 0.001;
+    this.x = this.arcCx + xRad * Math.cos(this.angle);
+    this.y = this.arcCy - this.arcRadius * Math.sin(this.angle) * 2;
+
+    this.opacity -= this.opacity > .02 ? .02 : 0;
+    if (this.opacity <= 0.2)
+        this.dead = true;
 };
 
 Pellet.prototype.draw = function (ctx) {
@@ -189,7 +195,6 @@ Pellet.prototype.draw = function (ctx) {
     ctx.fillStyle = this.colour;
 
     ctx.beginPath();
-    //ctx.rotate(this.angle);
     ctx.rect(this.x, this.y, this.size, this.size);
 
     ctx.fill();

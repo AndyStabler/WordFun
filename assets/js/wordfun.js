@@ -163,13 +163,13 @@ Pellet.prototype.generateArcCx = function () {
         max = this.x + 5 * this.size;
         min = this.x + 2 * this.size;
     }
-    this.arcCx = Math.floor(Math.random() * (max - min)) + min;
+    this.arcCx = ran(min, max);
 };
 
 Pellet.prototype.generateArcCy = function () {
-    var max = this.y;// + this.size / 2; // todo: maybe make max this.y?
+    var max = this.y;
     var min = this.y - this.size;
-    this.arcCy = Math.floor(Math.random() * (max - min)) + min;
+    this.arcCy = ran(min, max);
 };
 
 Pellet.prototype.updatePosition = function () {
@@ -237,16 +237,7 @@ function keyPressed(e) {
     return keynum;
 }
 
-function update(evt) {
+function ran(min, max) {
     "use strict";
-    var key = keyPressed(evt);
-    alert(key + " matches /[a-zA-Z0-9]/ : " + /[a-zA-Z0-9]/.test(String.fromCharCode(key)));
-    if (!/[a-zA-Z0-9]/.test(String.fromCharCode(key))) return;
-
-    var canvas = document.getElementById('word-fun-canvas');
-
-    // TODO: remove gaps in value range
-    // integer range = 48-57 (min/max inclusive)
-    // char range = 65-90, 97-122
-
+    return Math.floor(Math.random() * (max - min)) + min;
 }

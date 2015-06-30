@@ -70,9 +70,7 @@ Animator.prototype.shiftExploder = function () {
 
 Animator.prototype.clearCanvas = function () {
     "use strict";
-    //this.ctx.clearRect(0, 0, this.width, this.height);
-    this.ctx.fillStyle = '#000000';
-    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.ctx.clearRect(0, 0, this.width, this.height);
 };
 
 Animator.prototype.explode = function () {

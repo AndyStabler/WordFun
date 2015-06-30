@@ -207,7 +207,16 @@ var running = false;
 var animRequest;
 function newCharacter() {
     "use strict";
-    anim.pushExploder(new Exploder(anim.ctx, 200, 200));
+
+    var canvas = document.getElementById('word-fun-canvas'),
+        mW = canvas.width,
+        mH = canvas.height;
+
+    // don't get too close to the edge unless we have no choice
+    var x = ran(mW > 100 ? 25 : 0, mW);
+    var y = ran(mH > 100 ? 25 : 0, mH);
+
+    anim.pushExploder(new Exploder(anim.ctx, x, y));
 }
 
 /*

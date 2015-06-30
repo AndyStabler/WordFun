@@ -50,10 +50,16 @@ Animator.prototype.pushExploder = function (exploder) {
         running = true;
         requestAnimationFrame(anim.explode.bind(anim));
     }
-    // remove the exploder after some time
-    setTimeout(function () {
-        that.shiftExploder();
+
+    // check the explosion every so often - once it's finished remove it from the animation
+    var t = setInterval(function () {
+        if (exploder.finished()) {
+            that.shiftExploder();
+            // stop checking to see if it's dead once we know it is
+            clearInterval(t);
+        }
     }, 1000);
+
 };
 
 Animator.prototype.shiftExploder = function () {

@@ -1,5 +1,5 @@
 /**
- * Created by andy on 30/06/15.
+ * Created by Andy Stabler
  */
 var anim = new wordFun.animator();
 

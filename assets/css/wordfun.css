@@ -1,0 +1,54 @@
+/*
+Created By Andy Stabler
+*/
+
+body {
+    font-family: helvetica, sans-serif;
+}
+
+#main {
+    margin: 0 auto;
+}
+
+#player {
+    display: inline-block;
+}
+
+#details {
+    position: absolute;
+    margin-top: .5em;
+    width: 100%;
+}
+
+#pause-toggle {
+    float: left;
+    line-height: 2;
+}
+
+#details p {
+    /*line-height: 2;*/
+    margin: 0;
+}
+
+#details p a {
+    padding: .5em;
+    line-height: 1.65;
+    color: inherit;
+    font-weight: 200;
+    text-decoration: none;
+}
+
+/*#details p a {*/
+    /*padding: .5em;*/
+/*}*/
+
+#word-fun-input {
+    float: left;
+    line-height: 1.5;
+    font-size: 2em;
+    width: 100%;
+}
+
+#word-fun-canvas {
+    clear: both;
+}

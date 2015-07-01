@@ -4,6 +4,7 @@ Created By Andy Stabler
 
 body {
     font-family: helvetica, sans-serif;
+    font-size: 100%;
 }
 
 #main {
@@ -20,9 +21,15 @@ body {
     width: 100%;
 }
 
+button {
+    line-height: 2;
+    font-size: 1em;
+}
+
 #pause-toggle {
     float: left;
-    line-height: 2;
+    /*font-size: 1em;*/
+    /*//line-height: 2;*/
 }
 
 #details p {
@@ -38,10 +45,6 @@ body {
     text-decoration: none;
 }
 
-/*#details p a {*/
-    /*padding: .5em;*/
-/*}*/
-
 #word-fun-input {
     float: left;
     line-height: 1.5;
@@ -49,6 +52,32 @@ body {
     width: 100%;
 }
 
+#word-fun-fire {
+    display: none;
+}
+
+@media only screen and (max-device-width: 340px) {
+    #word-fun-input {
+        display: none;
+    }
+
+    #word-fun-fire {
+        display: block;
+        float: left;
+    }
+
+    #details p a {
+        line-height: 2.3;
+    }
+}
+
 #word-fun-canvas {
     clear: both;
+}
+
+@media only screen and (max-device-width: 400px) {
+    html {
+        font-size: 150%;
+        font-weight: normal;
+    }
 }

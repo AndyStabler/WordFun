@@ -1,3 +1,7 @@
+/**
+ * Created By Andy Stabler
+ */
+
 var wordFun = {};
 
 /**
@@ -189,7 +193,7 @@ wordFun.exploder.prototype.isFinished = function () {
  */
 wordFun.pellet = function (x, y) {
     "use strict";
-    this.size = 30;
+    this.size = 15;
     this.x = x;
     this.y = y;
     this.opacity = 1;
@@ -260,10 +264,12 @@ wordFun.pellet.prototype.draw = function (ctx) {
     ctx.save();
     ctx.globalAlpha = this.opacity;
     ctx.fillStyle = this.colour;
-
+    // use this to put the pellet at its correct trajectory angle
+    //ctx.translate(this.x, this.y);
+    //ctx.rotate(this.isLeftArc ? -this.angle : this.angle);
+    //ctx.translate(-this.x, -this.y);
     ctx.beginPath();
     ctx.rect(this.x, this.y, this.size, this.size);
-
     ctx.fill();
     ctx.restore();
 };

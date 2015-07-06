@@ -18,7 +18,8 @@ wordFun.animator = function () {
     this.initDimension();
     this.exploders = [];
     this.clearCanvas();
-    this.running = false;
+    this.started = false;
+    this.paused = false;
 };
 
 /**
@@ -38,15 +39,11 @@ wordFun.animator.prototype.initDimension = function () {
  */
 wordFun.animator.prototype.pushExploder = function (exploder) {
     "use strict";
+    if (this.paused)
+        return;
     var that = this;
     // add the exploder to the end of the queue
     this.exploders.push(exploder);
-
-    // if we aren't running, start up
-    if (!this.running) {
-        this.running = true;
-        requestAnimationFrame(anim.explode.bind(anim));
-    }
 
     // check the explosion every so often - once it's finished remove it from the animation
     var t = setInterval(function () {
@@ -56,8 +53,12 @@ wordFun.animator.prototype.pushExploder = function (exploder) {
             // stop checking to see if it's dead once we know it is
             clearInterval(t);
         }
-    }, 1000);
+    }, 500);
 
+    if (!this.started) {
+        this.started = true;
+        this.animRequest = requestAnimationFrame(anim.explode.bind(anim));
+    }
 };
 
 /**
@@ -70,7 +71,7 @@ wordFun.animator.prototype.shiftExploder = function () {
     // stop the animation if there are no explosions to animate
     if (this.exploders.length == 0) {
         cancelAnimationFrame(this.animRequest);
-        this.running = false;
+        this.started = false;
         this.clearCanvas();
     }
 };
@@ -106,20 +107,20 @@ wordFun.animator.prototype.fire = function () {
         mH = this.ctx.canvas.height;
 
     // don't get too close to the edge unless we have no choice
-    var x = wordFun.ran(mW > 200 ? 50 : 0, mW > 200 ? mW - 50 : mW);
-    var y = wordFun.ran(mH > 200 ? 50 : 0, mH > 200 ? mH - 50 : mH);
+    var x = wordFun.ran(mW > 200 ? 100 : 0, mW > 200 ? mW - 100 : mW);
+    var y = wordFun.ran(mH > 200 ? 100 : 0, mH > 200 ? mH - 100 : mH);
 
     this.pushExploder(new wordFun.exploder(this.ctx, x, y));
 };
 
 wordFun.animator.prototype.pauseToggle = function () {
     "use strict";
-    if (this.running) {
-        cancelAnimationFrame(this.animRequest);
-        this.running = false;
-    } else {
+    if (this.paused) {
+        this.paused = false;
         requestAnimationFrame(anim.explode.bind(anim));
-        this.running = true;
+    } else {
+        this.paused = true;
+        this.animRequest = cancelAnimationFrame(this.animRequest);
     }
 };
 
@@ -133,7 +134,7 @@ wordFun.exploder = function (ctx, x, y) {
     "use strict";
     this.ctx = ctx;
     // generate a number of pellets to be used in the explosion
-    this.makePellets(x, y, 10);
+    this.makePellets(x, y, 5);
 };
 
 /**
@@ -175,7 +176,7 @@ wordFun.exploder.prototype.draw = function () {
 };
 
 /**
- * if any pellet in the explosion is dead, then the explosion is finisheds
+ * if any pellet in the explosion is dead, then the explosion is finished
  * TODO: could class Exploder as finished when all pellets are dead?
  * @return {boolean}
  */
@@ -193,9 +194,10 @@ wordFun.exploder.prototype.isFinished = function () {
  */
 wordFun.pellet = function (x, y) {
     "use strict";
-    this.size = 15;
+    this.size = 20;
     this.x = x;
     this.y = y;
+    this.mass = wordFun.ran(5, 20);
     this.opacity = 1;
     this.dead = false;
     // arcCx/Cy are the coordinates of the center of the arc circle
@@ -220,6 +222,7 @@ wordFun.pellet.prototype.generateArcCx = function () {
         // a left arc has been chosen
         var max = this.x - this.size;
         var min = this.x - 4 * this.size;
+
     } else {
         // a right arc has been chosen
         max = this.x + 5 * this.size;
@@ -249,8 +252,15 @@ wordFun.pellet.prototype.updatePosition = function () {
     // so either add the radius (if we're performing a left arc) or subtract it (if we're performing a right arc)
     var xRad = this.isLeftArc ? this.arcRadius : -this.arcRadius;
 
+    var oldX = this.x;
+    var oldY = this.y;
+
     this.x = this.arcCx + xRad * Math.cos(this.angle);
     this.y = this.arcCy - this.arcRadius * Math.sin(this.angle) * 2;
+
+    this.x += oldX / this.isLeftArc ? -this.mass : this.mass;
+    this.y += oldY / this.mass;
+
     // decrease the opacity over time - once its opacity is low enough we class it as dead
     this.opacity -= this.opacity > .02 ? .02 : 0;
     if (this.opacity <= 0.2)

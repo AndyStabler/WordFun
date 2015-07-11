@@ -2,7 +2,7 @@
  * Created by Andy Stabler
  */
 var anim = new wordFun.animator();
-var displayTimer;
+var displayInterval;
 var displayRunning = false;
 
 document.getElementById('word-fun-input').addEventListener('keypress', anim.fire.bind(anim));
@@ -12,19 +12,20 @@ document.getElementById('word-fun-auto').addEventListener('click',
         "use strict";
         var autoButton = document.getElementById('word-fun-auto');
         if (!displayRunning) {
-            displayRunning = !displayRunning;
+            displayRunning = true;
             autoButton.innerHTML = "Stop Display";
-            displayTimer = requestAnimationFrame(startDisplay);
+            startDisplay();
         } else {
-            displayRunning = !displayRunning;
+            displayRunning = false;
             autoButton.innerHTML = "Start Display";
-            cancelAnimationFrame(displayTimer);
+            clearInterval(displayInterval);
         }
     });
 
-
 function startDisplay() {
     "use strict";
-    anim.fire.bind(anim)();
-    displayTimer = requestAnimationFrame(startDisplay);
+    // requestAnimationFrame is called in fire, so we can just use setInterval here
+    displayInterval = setInterval(function () {
+        anim.fire()
+    }, 80);
 }

@@ -1,8 +1,7 @@
 /**
  * Created By Andy Stabler
  */
-
-var wordFun = {};
+var wordFun = {GRAVITY: .5};
 
 /**
  * The animator is the main controller for the explosions
@@ -89,7 +88,6 @@ wordFun.animator.prototype.clearCanvas = function () {
 wordFun.animator.prototype.explode = function () {
     "use strict";
     this.initDimension();
-    this.clearCanvas();
     this.exploders.forEach(function (exploder) {
         exploder.explode();
     });
@@ -134,7 +132,7 @@ wordFun.exploder = function (ctx, x, y) {
     "use strict";
     this.ctx = ctx;
     // generate a number of pellets to be used in the explosion
-    this.makePellets(x, y, 5);
+    this.makePellets(x, y, 20);
 };
 
 /**
@@ -159,7 +157,6 @@ wordFun.exploder.prototype.explode = function () {
     this.draw();
     // increase the angle of rotation
     this.pellets.forEach(function (pellet) {
-        pellet.angle += 3 * Math.PI / 180;
         pellet.updatePosition();
     });
 };
@@ -194,72 +191,33 @@ wordFun.exploder.prototype.isFinished = function () {
  */
 wordFun.pellet = function (x, y) {
     "use strict";
-    this.size = 20;
+    this.size = 8;
     this.x = x;
     this.y = y;
-    this.mass = wordFun.ran(5, 20);
     this.opacity = 1;
     this.dead = false;
-    // arcCx/Cy are the coordinates of the center of the arc circle
-    this.generateArcCx();
-    this.generateArcCy();
-    // radius is the hyp
-    this.arcRadius = Math.sqrt(Math.pow(Math.abs(this.arcCx - this.x), 2) + Math.pow(Math.abs(this.arcCy - this.y), 2));
+    this.speed = wordFun.ran(5, 10);
+    this.setAngle(wordFun.ran(0, 360) * (Math.PI / 180));
     this.colour = wordFun.randomColor();
-    this.angle = 3 * Math.PI / 180;
+};
+
+wordFun.pellet.prototype.setAngle = function (angle) {
+    "use strict";
+    this.angle = angle;
+    this.scaleX = Math.cos(this.angle);
+    this.scaleY = Math.sin(this.angle);
+    this.vx = this.speed * this.scaleX;
+    this.vy = this.speed * this.scaleY;
 };
 
 /**
- * Generates the x coordinate of the arc circle's center
- *
- * the x coordinate must be far enough away from the pellet's x coordinate to make the explosion look fairly real
- * the further away the point, the longer the arc will be
- */
-wordFun.pellet.prototype.generateArcCx = function () {
-    // decide between a left and a right arc at random
-    this.isLeftArc = Math.random() < 0.5;
-    if (this.isLeftArc) {
-        // a left arc has been chosen
-        var max = this.x - this.size;
-        var min = this.x - 4 * this.size;
-
-    } else {
-        // a right arc has been chosen
-        max = this.x + 5 * this.size;
-        min = this.x + 2 * this.size;
-    }
-    this.arcCx = wordFun.ran(min, max);
-};
-
-/**
- * Generates the y coordinate of the arc circle's center
- *
- * the y coordinate must be <= to the pellet's y coordinate to make the explosion look fairly real
- * if the arcY coordinate was above the pellet's y coordinate, the arc would look weird (it would go in a positive
- * and negative x direction)
- */
-wordFun.pellet.prototype.generateArcCy = function () {
-    var max = this.y;
-    var min = this.y - this.size;
-    this.arcCy = wordFun.ran(min, max);
-};
-
-/**
- * Updates the pellet's position along its trajectory arc \
+ * Updates the pellet's position
  */
 wordFun.pellet.prototype.updatePosition = function () {
-    // we want all pellets in an explosion to start at the same x,y pos
-    // so either add the radius (if we're performing a left arc) or subtract it (if we're performing a right arc)
-    var xRad = this.isLeftArc ? this.arcRadius : -this.arcRadius;
-
-    var oldX = this.x;
-    var oldY = this.y;
-
-    this.x = this.arcCx + xRad * Math.cos(this.angle);
-    this.y = this.arcCy - this.arcRadius * Math.sin(this.angle) * 2;
-
-    this.x += oldX / this.isLeftArc ? -this.mass : this.mass;
-    this.y += oldY / this.mass;
+    "use strict";
+    this.x += this.vx;
+    this.y -= this.vy;
+    this.vy -= wordFun.GRAVITY;
 
     // decrease the opacity over time - once its opacity is low enough we class it as dead
     this.opacity -= this.opacity > .02 ? .02 : 0;
@@ -271,13 +229,10 @@ wordFun.pellet.prototype.updatePosition = function () {
  * Draw the pellet on the canvas' context
  */
 wordFun.pellet.prototype.draw = function (ctx) {
+    "use strict";
     ctx.save();
     ctx.globalAlpha = this.opacity;
     ctx.fillStyle = this.colour;
-    // use this to put the pellet at its correct trajectory angle
-    //ctx.translate(this.x, this.y);
-    //ctx.rotate(this.isLeftArc ? -this.angle : this.angle);
-    //ctx.translate(-this.x, -this.y);
     ctx.beginPath();
     ctx.rect(this.x, this.y, this.size, this.size);
     ctx.fill();
@@ -285,6 +240,7 @@ wordFun.pellet.prototype.draw = function (ctx) {
 };
 
 wordFun.randomColor = function () {
+    "use strict";
     var letters = '0123456789ABCDEF'.split('');
     var color = '#';
     for (var i = 0; i < 6; i++)
@@ -297,7 +253,7 @@ wordFun.ran = function (min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 };
 
-// This is some guff needed so the requestAnimationFrame/cancelAnimationFrame function calls work across most all browsers
+// This is some guff needed so the requestAnimationFrame/cancelAnimationFrame function calls work across most browsers
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating

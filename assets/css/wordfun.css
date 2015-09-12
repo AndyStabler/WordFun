@@ -28,16 +28,6 @@ details * {
     padding: .5em;
 }
 
-/*button {*/
-    /*line-height: 2;*/
-    /*font-size: 1em;*/
-    /*float: left;*/
-    /*margin-top: .3em;*/
-/*}*/
-
-
-/*
-*/
 button {
     -webkit-appearance: none;
     float: left;
@@ -51,11 +41,10 @@ button {
     font-size: 1em;
     line-height: 2;
 }
+
 button:hover {
     background-color: #2C71AD;
 }
-/*
-*/
 
 #pause-toggle {
     float: left;
@@ -87,10 +76,6 @@ button:hover {
 }
 
 @media only screen and (max-device-width: 400px) {
-    /*html {*/
-        /*font-size: 120%;*/
-        /*font-weight: normal;*/
-    /*}*/
 
     #details {
         width: 98%;
@@ -98,7 +83,4 @@ button:hover {
         margin-right: 0;
     }
 
-    /*#word-fun-input {*/
-        /*width: 98%;*/
-    /*}*/
 }

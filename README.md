@@ -1,4 +1,4 @@
 # WordFun
 Fireworks from your words
 
-[jsfiddle](http://jsfiddle.net/e1eybn53/)
+[jsfiddle](http://jsfiddle.net/e1eybn53/2/)

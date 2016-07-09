@@ -73,6 +73,7 @@ button:hover {
 
 #word-fun-canvas {
     clear: both;
+    background-color: black;
 }
 
 @media only screen and (max-device-width: 400px) {

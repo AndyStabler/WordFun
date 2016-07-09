@@ -191,7 +191,7 @@ wordFun.exploder.prototype.isFinished = function () {
  */
 wordFun.pellet = function (x, y) {
     "use strict";
-    this.size = 100;
+    this.size = 4;
     this.x = x;
     this.y = y;
     this.opacity = 1;
@@ -234,7 +234,7 @@ wordFun.pellet.prototype.draw = function (ctx) {
     ctx.globalAlpha = this.opacity;
     ctx.fillStyle = this.colour;
     ctx.beginPath();
-    var size = ctx.canvas.width / this.size;
+    var size = this.size;
     ctx.rect(this.x, this.y, size, size);
     ctx.fill();
     ctx.restore();

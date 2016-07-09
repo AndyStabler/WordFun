@@ -61,6 +61,7 @@ button:hover {
     font-weight: 200;
     text-decoration: none;
     display: inline-block;
+    color: white;
 }
 
 #word-fun-input {

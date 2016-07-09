@@ -1,7 +1,7 @@
 /**
  * Created By Andy Stabler
  */
-var wordFun = {GRAVITY: .5};
+var wordFun = {GRAVITY: .3};
 
 /**
  * The animator is the main controller for the explosions

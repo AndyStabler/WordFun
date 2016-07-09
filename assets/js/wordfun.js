@@ -132,7 +132,7 @@ wordFun.exploder = function (ctx, x, y) {
     "use strict";
     this.ctx = ctx;
     // generate a number of pellets to be used in the explosion
-    this.makePellets(x, y, 40);
+    this.makePellets(x, y, 100);
 };
 
 /**

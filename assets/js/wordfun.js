@@ -191,7 +191,7 @@ wordFun.exploder.prototype.isFinished = function () {
  */
 wordFun.pellet = function (x, y) {
     "use strict";
-    this.size = 4;
+    this.size = 3;
     this.x = x;
     this.y = y;
     this.opacity = 1;
